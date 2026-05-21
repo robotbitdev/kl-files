@@ -249,9 +249,20 @@ ROUTINE files__clear
     IF IO_STATUS(fl) <> 0 THEN CLOSE FILE fl; ENDIF
 
     OPEN FILE fl ('RW', filename)
-    files__close(filename, fl) 
+    files__close(filename, fl)
 
   END files__clear
+
+ROUTINE files__delete
+  VAR
+    status : INTEGER
+  BEGIN
+    -- status 10003 (MD:) and 85014 (RD:/FR:) mean "file not found" -- non-fatal
+    DELETE_FILE(filename, FALSE, status)
+    IF (status <> 0) AND (status <> 10003) AND (status <> 85014) THEN
+      karelError(status, 'Could not delete ' + filename, ER_ABORT)
+    ENDIF
+  END files__delete
 
 -- read any file into a string array
 -- for further processing
